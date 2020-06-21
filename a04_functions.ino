@@ -1,11 +1,20 @@
+byte getTemp() {
+  Vo = analogRead(THERMISTOR);
+  R2 = R1 * (1023.0 / (float)Vo - 1.0);
+  logR2 = log(R2);
+  T = (1.0 / (c1 + c2 * logR2 + c3 * logR2 * logR2 * logR2));
+  temp = (int)T - 273.15;                                         // temperature in celsius
+  //temp = (int)((T - 273.15) * 1.8 + 32);                        // temperature in fahrenheit
+
+  return temp;
+}
+
 byte reverse(byte in) {
   byte out = 0;
   for (int i = 0; i < 8; i++)
     out |= ((in >> i) & 1) << (7 - i);
   return out;
 }
-
-
 
 int setBarInt(byte bitIndex) {
   int LEDBar = 0;

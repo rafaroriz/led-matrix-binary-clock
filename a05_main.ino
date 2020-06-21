@@ -116,13 +116,8 @@ void loop() {
     lc.shutdown(0, false);
   }
 
-  // calculates temperature
-  Vo = analogRead(THERMISTOR);
-  R2 = R1 * (1023.0 / (float)Vo - 1.0);
-  logR2 = log(R2);
-  T = (1.0 / (c1 + c2 * logR2 + c3 * logR2 * logR2 * logR2));
-  temp = (int)T - 273.15 - 1;                 // temperature in celsius
-  //temp = (int)((T - 273.15) * 1.8 + 32);    // temperature in fahrenheit
+  // gets temperature
+  temp = getTemp();
 
   // gets time from RTC and sets date and time variables
   DateTime now = RTC.now();
@@ -420,7 +415,9 @@ void loop() {
 
   // plays alarm
   if (!alarmSwitch && clkH == alarmH && clkM == alarmM) {
-    lc.shutdown(0, false);                // keeps display on while alarm is active
+    // keeps display on while alarm is active
+    lc.shutdown(0, false);
+    
     digitalWrite(BUTTON_LED, HIGH);
     playAlarm(alarmTune);
 

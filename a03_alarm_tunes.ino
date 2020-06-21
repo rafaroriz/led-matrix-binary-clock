@@ -1,3 +1,10 @@
+/* These tunes were all adapted by myself from
+ * music sheets found in the internet.
+ * Just like the rest of the code,
+ * feel free to use them in whatever way you'd like,
+ * just be sure to place a copy of the license in your project.
+ */
+
 int hpTheme[] = {
   REST, NOTE_B4,
   NOTE_E4, NOTE_G4, NOTE_FS4,
