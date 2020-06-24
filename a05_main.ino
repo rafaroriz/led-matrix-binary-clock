@@ -110,7 +110,7 @@ void loop() {
 
   // turns display and LEDs on or off according to lowLight flag
   if (!toggleAdjust) {
-    if ((displayOn && !lowLight) || !modeUp) {
+    if ((displayOn && !lowLight) || alarmScreen) {
       lc.shutdown(0, false);
     } else {
       lc.shutdown(0, true);
@@ -386,7 +386,8 @@ void loop() {
     delay(BASE_DELAY);
   }
   if (!toggleAdjust) {
-    if (displayOn && !lowLight && !alarmSwitch && lightLamp) {
+    if ((displayOn && !lowLight && !alarmSwitch && lightLamp) ||
+      (alarmScreen && !alarmSwitch && lightLamp)) {
       digitalWrite(SIDE_BTN_LED, HIGH);
     } else {
       digitalWrite(SIDE_BTN_LED, LOW);
