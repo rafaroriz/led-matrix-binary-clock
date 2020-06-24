@@ -49,7 +49,7 @@ bool humidityRead = false;
 #define ALARM_BTN 50
 #define MODE_SWITCH_UP 51
 #define MODE_SWITCH_DOWN 53
-#define MAIN_BTN 12
+#define SIDE_BTN 12
 
 enum LED_BARS { FRONT, TOP };
 
@@ -78,7 +78,7 @@ enum LED_BARS { FRONT, TOP };
 #define TOP_BAR_9 49
 
 // button LED
-#define BUTTON_LED 13
+#define SIDE_BTN_LED 13
 
 // alarm buzzer
 #define BUZZER 10
@@ -88,7 +88,7 @@ enum LED_BARS { FRONT, TOP };
 
 // buttons and switches variables
 bool alarmScreen = false;
-bool mainPressed = false;
+bool sidePressed = false;
 bool modeUp = false;
 bool modeDown = false;
 bool hourPressed = false;

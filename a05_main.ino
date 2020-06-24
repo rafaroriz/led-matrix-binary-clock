@@ -10,7 +10,7 @@ void setup() {
   dht.begin();
 
   // pins configuration
-  pinMode(BUTTON_LED, OUTPUT);
+  pinMode(SIDE_BTN_LED, OUTPUT);
 
   pinMode(FRONT_BAR_0, OUTPUT);
   pinMode(FRONT_BAR_1, OUTPUT);
@@ -39,7 +39,7 @@ void setup() {
   pinMode(ALARM_BTN, INPUT_PULLUP);
   pinMode(MODE_SWITCH_UP, INPUT_PULLUP);
   pinMode(MODE_SWITCH_DOWN, INPUT_PULLUP);
-  pinMode(MAIN_BTN, INPUT_PULLUP);
+  pinMode(SIDE_BTN, INPUT_PULLUP);
 
   // randomizes random seed
   randomSeed(analogRead(RANDOMIZER_PIN));
@@ -67,13 +67,21 @@ void setup() {
 
 void loop() {
 
+  // gets time from RTC and sets date and time variables
+  DateTime now = RTC.now();
+  clkH = now.hour();
+  clkM = now.minute();
+  clkS = now.second();
+  dateD = now.day();
+  dateM = now.month();
+
   // reads buttons states
   hourPressed = digitalRead(HOUR_BTN);
   minPressed = digitalRead(MIN_BTN);
   alarmSwitch = digitalRead(ALARM_BTN);
   modeUp = digitalRead(MODE_SWITCH_UP);
   modeDown = digitalRead(MODE_SWITCH_DOWN);
-  mainPressed = digitalRead(MAIN_BTN);
+  sidePressed = digitalRead(SIDE_BTN);
 
   // reads LDR value
   lightIndex = getLightIndex();
@@ -106,7 +114,7 @@ void loop() {
       lc.shutdown(0, false);
     } else {
       lc.shutdown(0, true);
-      digitalWrite(BUTTON_LED, LOW);
+      digitalWrite(SIDE_BTN_LED, LOW);
       if (alarmSwitch || !displayOn) {
         setLEDBar(0, setBarInt(0));
         setLEDBar(1, setBarInt(0));
@@ -118,14 +126,6 @@ void loop() {
 
   // gets temperature
   temp = getTemp();
-
-  // gets time from RTC and sets date and time variables
-  DateTime now = RTC.now();
-  clkH = now.hour();
-  clkM = now.minute();
-  clkS = now.second();
-  dateD = now.day();
-  dateM = now.month();
 
   // reads humidity every two seconds
   if (clkS % 2 == 0 && !humidityRead) {
@@ -245,10 +245,10 @@ void loop() {
   }
 
   // blinks alarm time if alarm is armed and main button is pressed when display is off
-  if (!alarmScreen && !alarmSwitch && !mainPressed && (!displayOn || lowLight)) {
+  if (!alarmScreen && !alarmSwitch && !sidePressed && (!displayOn || lowLight)) {
     for (int i = 0; i < 3; i++) {
       lc.shutdown(0, false);
-      digitalWrite(BUTTON_LED, HIGH);
+      digitalWrite(SIDE_BTN_LED, HIGH);
       lc.setRow(0, 0, reverse(alarmH) >> 1);
       lc.setRow(0, 1, reverse(alarmM) >> 1);
       lc.setRow(0, 2, B0);
@@ -259,7 +259,7 @@ void loop() {
       lc.setRow(0, 7, tuneIcon2);
       delay(BASE_DELAY * 5);
       lc.shutdown(0, true);
-      digitalWrite(BUTTON_LED, LOW);
+      digitalWrite(SIDE_BTN_LED, LOW);
       delay(BASE_DELAY);
     }
   }
@@ -294,7 +294,7 @@ void loop() {
   }
 
   // waits for time adjust confirmation when main button is pressed
-  if (displayOn && !lowLight && alarmSwitch && !alarmScreen && !toggleAdjust && !mainPressed) {
+  if (displayOn && !lowLight && alarmSwitch && !alarmScreen && !toggleAdjust && !sidePressed) {
     delay(BASE_DELAY);
     toggleAdjust = true;
     preAdjustTimer = clkS + 5;
@@ -303,9 +303,9 @@ void loop() {
     }
   } // blinks LED while waiting
   if (toggleAdjust && preAdjustTimer != clkS && clockStep) {
-    digitalWrite(BUTTON_LED, LOW);
+    digitalWrite(SIDE_BTN_LED, LOW);
   } else if (toggleAdjust && preAdjustTimer != clkS && !clockStep) {
-    digitalWrite(BUTTON_LED, HIGH);
+    digitalWrite(SIDE_BTN_LED, HIGH);
   } else if (toggleAdjust && preAdjustTimer == clkS) {
     toggleAdjust = false;
   }
@@ -324,11 +324,11 @@ void loop() {
       lc.setRow(0, 5, reverse(dateD) >> 1);
       lc.setRow(0, 6, reverse(dateM) >> 1);
       lc.setRow(0, 7, reverse(temp) >> 1);
-      digitalWrite(BUTTON_LED, LOW);
+      digitalWrite(SIDE_BTN_LED, LOW);
       delay(100);
       lc.setRow(0, 0, reverse(clkH) >> 1);
       lc.setRow(0, 1, reverse(clkM) >> 1);
-      digitalWrite(BUTTON_LED, HIGH);
+      digitalWrite(SIDE_BTN_LED, HIGH);
       delay(400);
 
       modeDown = digitalRead(MODE_SWITCH_DOWN);
@@ -372,7 +372,7 @@ void loop() {
   }
 
   // sets alarm tune
-  if (alarmScreen && !mainPressed) {
+  if (alarmScreen && !sidePressed) {
     alarmTune++;
     if (alarmTune > 5) {
       alarmTune = 0;
@@ -380,23 +380,24 @@ void loop() {
     delay(BASE_DELAY);
   }
 
-  // toggles light lamp function and turns button LED on or off accordingly
-  if (displayOn && !alarmScreen && !alarmSwitch && !mainPressed) {
+  // toggles light lamp function and turns side button LED on or off accordingly
+  if (displayOn && !alarmScreen && !alarmSwitch && !sidePressed) {
     lightLamp = !lightLamp;
     delay(BASE_DELAY);
   }
   if (!toggleAdjust) {
     if (displayOn && !lowLight && !alarmSwitch && lightLamp) {
-      digitalWrite(BUTTON_LED, HIGH);
+      digitalWrite(SIDE_BTN_LED, HIGH);
     } else {
-      digitalWrite(BUTTON_LED, LOW);
+      digitalWrite(SIDE_BTN_LED, LOW);
     }
   }
+  // blinks side button LED if on alarm screen but alarm is not armed yet
   if (alarmScreen && alarmSwitch && lightLamp) {
     if (clockStep) {
-      digitalWrite(BUTTON_LED, HIGH);
+      digitalWrite(SIDE_BTN_LED, HIGH);
     } else {
-      digitalWrite(BUTTON_LED, LOW);
+      digitalWrite(SIDE_BTN_LED, LOW);
     }
   }
 
@@ -418,7 +419,7 @@ void loop() {
     // keeps display on while alarm is active
     lc.shutdown(0, false);
     
-    digitalWrite(BUTTON_LED, HIGH);
+    digitalWrite(SIDE_BTN_LED, HIGH);
     playAlarm(alarmTune);
 
     // increments alarm time for snooze
