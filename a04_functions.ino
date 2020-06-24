@@ -66,13 +66,17 @@ int getLightIndex() {
 }
 
 void lampOn() {
-  irsend.sendNEC(0xFFE01F, 32);
-  delay(BASE_DELAY / 5);
   for (int i = 0; i < 4; i++) {
+    irsend.sendNEC(0xFFE01F, 32);
+    delay(BASE_DELAY / 5);
+  }
+}
+
+void lampMax() {
+  for (int i = 0; i < 16; i++) {
     irsend.sendNEC(0xFFA05F, 32);
     delay(BASE_DELAY / 5);
   }
-  delay(BASE_DELAY);
 }
 
 void beep() {

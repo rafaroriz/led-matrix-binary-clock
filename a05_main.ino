@@ -56,7 +56,7 @@ void setup() {
   }
 
   // initializes serial comm
-  Serial.begin(9600);
+  //Serial.begin(9600);
 
   // sets the RTC to the date & time this sketch was compiled
   //RTC.adjust(DateTime(__DATE__, __TIME__));
@@ -409,6 +409,7 @@ void loop() {
       )) {
     for (int i = 0; i < 5; i++) {
       lampOn();
+      lampMax();
       if (getLightIndex() >= ALARM_LIGHT_THRESHOLD) {
         break;
       }
@@ -450,11 +451,6 @@ void loop() {
     lampOn();
     duskLampTriggered = true;
   }
-
-  Serial.print("duskInterval: ");
-  Serial.println(duskInterval);
-  Serial.print("duskLampTriggered: ");
-  Serial.println(duskLampTriggered);
 
   // alternates clockStep each main loop cycle
   clockStep = !clockStep;
