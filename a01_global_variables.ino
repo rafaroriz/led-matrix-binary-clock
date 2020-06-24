@@ -20,10 +20,13 @@ IRsend irsend;
 
 // pin A1 is photoresistor
 #define LDR 1
+
 int lightIndex;
 bool displayOn = true;
 bool lightLamp = true;
 bool lowLight = false;
+bool duskInterval = false;
+bool duskLampTriggered = false;
 
 // thermistor setup
 // pin A0 is thermistor

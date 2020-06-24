@@ -48,7 +48,7 @@ void setup() {
   // this means there was a blackout and when power comes back the lamp will probably turn itself on
   DateTime now = RTC.now();
   clkH = now.hour();
-  if (clkH >= 0 && clkH <= 6 && getLightIndex() >= LIGHT_THRESHOLD) {
+  if (clkH >= 2 && clkH <= 8 && getLightIndex() >= LIGHT_THRESHOLD) {
     for (int i = 0; i < 3; i++) {
       irsend.sendNEC(0xFF609F, 32);
       delay(BASE_DELAY / 5);
@@ -56,7 +56,7 @@ void setup() {
   }
 
   // initializes serial comm
-  //Serial.begin(9600);
+  Serial.begin(9600);
 
   // sets the RTC to the date & time this sketch was compiled
   //RTC.adjust(DateTime(__DATE__, __TIME__));
@@ -438,6 +438,23 @@ void loop() {
     alarmM = bkpAlarmM;
     alarmRang = false;
   }
+
+  // turns lamp on at dusk
+  if (clkH >= MIN_DUSK_H && clkH <= MAX_DUSK_H) {
+    duskInterval = true;
+  } else {
+    duskInterval = false;
+    duskLampTriggered = false;
+  }
+  if (displayOn && lowLight && duskInterval && !duskLampTriggered) {
+    lampOn();
+    duskLampTriggered = true;
+  }
+
+  Serial.print("duskInterval: ");
+  Serial.println(duskInterval);
+  Serial.print("duskLampTriggered: ");
+  Serial.println(duskLampTriggered);
 
   // alternates clockStep each main loop cycle
   clockStep = !clockStep;
