@@ -56,12 +56,10 @@ void setLEDBar(int bar, int intBit) {
 int getLightIndex() {
   int LDRRead = 1023 - analogRead(LDR);
   
-  // gets only half the resolution to adapt for my dark ambient light
-  int LDRIndex = map(LDRRead, 0, 512, 0, 11);
+  // if the clock is in a dark environment you can get only half the resolution
+  // of the sensor by replacing 1024 for 512 in the line below
+  int LDRIndex = map(LDRRead, 0, 1024, 0, 11);
   
-  if (LDRIndex > 10) {
-    LDRIndex = 10;
-  }
   return LDRIndex;
 }
 
