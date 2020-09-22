@@ -22,11 +22,14 @@ IRsend irsend;
 #define LDR 1
 
 int lightIndex;
+bool dayTime = true;
 bool displayOn = true;
 bool lightLamp = true;
 bool lowLight = false;
 bool duskInterval = false;
+bool duskTimerArmed = false;
 bool duskLampTriggered = false;
+int duskTimer;
 
 // thermistor setup
 // pin A0 is thermistor

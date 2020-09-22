@@ -108,9 +108,16 @@ void loop() {
     lowLight = true;
   }
 
-  // turns display and LEDs on or off according to lowLight flag
+  // set dayTime flag according to time of day
+  if (clkH >= 6 && clkH < 22) {
+    dayTime = true;
+  } else {
+    dayTime = false;
+  }
+
+  // turns display and LEDs on or off at night according to lowLight flag
   if (!toggleAdjust) {
-    if ((displayOn && !lowLight) || alarmScreen) {
+    if ((displayOn && !lowLight) || dayTime || alarmScreen) {
       lc.shutdown(0, false);
     } else {
       lc.shutdown(0, true);
@@ -145,8 +152,12 @@ void loop() {
   }
 
   // sets top LED bar according to light index if alarm is not set
-  if (displayOn && !lowLight && !alarmScreen && alarmSwitch) {
-    setLEDBar(TOP, setBarInt(lightIndex));
+  if ((dayTime || !lowLight) && displayOn && !alarmScreen && alarmSwitch) {
+    if (lightIndex == 0 & clockStep) {
+      setLEDBar(TOP, setBarInt(1));
+    } else {
+      setLEDBar(TOP, setBarInt(lightIndex));
+    }
   }
 
   // calculates time left before alarm
@@ -306,7 +317,7 @@ void loop() {
     digitalWrite(SIDE_BTN_LED, LOW);
   } else if (toggleAdjust && preAdjustTimer != clkS && !clockStep) {
     digitalWrite(SIDE_BTN_LED, HIGH);
-  } else if (toggleAdjust && preAdjustTimer == clkS) {
+  } else {
     toggleAdjust = false;
   }
 
@@ -387,7 +398,7 @@ void loop() {
   }
   if (!toggleAdjust) {
     if ((displayOn && !lowLight && !alarmSwitch && lightLamp) ||
-      (alarmScreen && !alarmSwitch && lightLamp)) {
+        (alarmScreen && !alarmSwitch && lightLamp)) {
       digitalWrite(SIDE_BTN_LED, HIGH);
     } else {
       digitalWrite(SIDE_BTN_LED, LOW);
@@ -420,7 +431,7 @@ void loop() {
   if (!alarmSwitch && clkH == alarmH && clkM == alarmM) {
     // keeps display on while alarm is active
     lc.shutdown(0, false);
-    
+
     digitalWrite(SIDE_BTN_LED, HIGH);
     playAlarm(alarmTune);
 
@@ -440,14 +451,25 @@ void loop() {
     alarmRang = false;
   }
 
-  // turns lamp on at dusk
+  // waits for 30 seconds of constant low light to turn lamp on at dusk
   if (clkH >= MIN_DUSK_H && clkH <= MAX_DUSK_H) {
     duskInterval = true;
   } else {
     duskInterval = false;
     duskLampTriggered = false;
   }
-  if (displayOn && lowLight && duskInterval && !duskLampTriggered) {
+
+  if (displayOn && lowLight && duskInterval && !duskTimerArmed && !duskLampTriggered) {
+    duskTimerArmed = true;
+    duskTimer = clkS + 30;
+    if (duskTimer >= 60) {
+      duskTimer -= 60;
+    }
+  } else if (duskTimerArmed && !lowLight) {
+    duskTimerArmed = false;
+  }
+
+  if (duskTimerArmed && duskTimer == clkS) {
     lampOn();
     duskLampTriggered = true;
   }
